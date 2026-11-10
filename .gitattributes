@@ -1,2 +1,5 @@
-# Auto detect text files and perform LF normalization
+# Automatyczne wykrywanie plików tekstowych i ujednolicenie końców linii
 * text=auto
+
+# Pliki .sql to PostgreSQL – bez tego GitHub traktuje SQL jako dane i nie pokazuje go w "Languages"
+*.sql linguist-language=PLpgSQL
