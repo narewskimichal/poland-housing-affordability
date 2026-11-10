@@ -1,0 +1,46 @@
+city_key,city_name,year,avg_gross_wage_pln,bdl_unit_id,bdl_unit_name
+bialystok,Białystok,2022,6183.98,062013761000,Powiat m. Białystok
+bialystok,Białystok,2023,7089.31,062013761000,Powiat m. Białystok
+bialystok,Białystok,2024,8281.89,062013761000,Powiat m. Białystok
+bydgoszcz,Bydgoszcz,2022,6435.59,040410661000,Powiat m. Bydgoszcz
+bydgoszcz,Bydgoszcz,2023,7478.19,040410661000,Powiat m. Bydgoszcz
+bydgoszcz,Bydgoszcz,2024,8448.23,040410661000,Powiat m. Bydgoszcz
+czestochowa,Częstochowa,2022,6018.76,012414664000,Powiat m. Częstochowa
+czestochowa,Częstochowa,2023,6715.44,012414664000,Powiat m. Częstochowa
+czestochowa,Częstochowa,2024,7830.22,012414664000,Powiat m. Częstochowa
+gdansk,Gdańsk,2022,7876.68,042214361000,Powiat m. Gdańsk
+gdansk,Gdańsk,2023,8915.97,042214361000,Powiat m. Gdańsk
+gdansk,Gdańsk,2024,10107.32,042214361000,Powiat m. Gdańsk
+gdynia,Gdynia,2022,6985.73,042214362000,Powiat m. Gdynia
+gdynia,Gdynia,2023,7890.4,042214362000,Powiat m. Gdynia
+gdynia,Gdynia,2024,8999.18,042214362000,Powiat m. Gdynia
+katowice,Katowice,2022,8017.49,012414869000,Powiat m. Katowice
+katowice,Katowice,2023,9105.52,012414869000,Powiat m. Katowice
+katowice,Katowice,2024,10051.54,012414869000,Powiat m. Katowice
+krakow,Kraków,2022,8157.43,011212161000,Powiat m. Kraków
+krakow,Kraków,2023,9223.73,011212161000,Powiat m. Kraków
+krakow,Kraków,2024,10455.44,011212161000,Powiat m. Kraków
+lodz,Łódź,2022,6629.23,051011661000,Powiat m. Łódź
+lodz,Łódź,2023,7548.1,051011661000,Powiat m. Łódź
+lodz,Łódź,2024,8621.77,051011661000,Powiat m. Łódź
+lublin,Lublin,2022,6402.56,060611163000,Powiat m. Lublin
+lublin,Lublin,2023,7443.57,060611163000,Powiat m. Lublin
+lublin,Lublin,2024,8507.48,060611163000,Powiat m. Lublin
+poznan,Poznań,2022,7362.74,023016264000,Powiat m. Poznań
+poznan,Poznań,2023,8303.38,023016264000,Powiat m. Poznań
+poznan,Poznań,2024,9495.07,023016264000,Powiat m. Poznań
+radom,Radom,2022,6182.33,071422763000,Powiat m. Radom
+radom,Radom,2023,7041.6,071422763000,Powiat m. Radom
+radom,Radom,2024,8269.16,071422763000,Powiat m. Radom
+rzeszow,Rzeszów,2022,6508.96,061813563000,Powiat m. Rzeszów
+rzeszow,Rzeszów,2023,7428.94,061813563000,Powiat m. Rzeszów
+rzeszow,Rzeszów,2024,8680.49,061813563000,Powiat m. Rzeszów
+szczecin,Szczecin,2022,6943.84,023216562000,Powiat m. Szczecin
+szczecin,Szczecin,2023,7933.31,023216562000,Powiat m. Szczecin
+szczecin,Szczecin,2024,9044.66,023216562000,Powiat m. Szczecin
+warszawa,Warszawa,2022,8540.11,071412865000,Powiat m. st. Warszawa
+warszawa,Warszawa,2023,9625.74,071412865000,Powiat m. st. Warszawa
+warszawa,Warszawa,2024,10714.99,071412865000,Powiat m. st. Warszawa
+wroclaw,Wrocław,2022,7391.95,030210564000,Powiat m. Wrocław
+wroclaw,Wrocław,2023,8334.84,030210564000,Powiat m. Wrocław
+wroclaw,Wrocław,2024,9425.25,030210564000,Powiat m. Wrocław

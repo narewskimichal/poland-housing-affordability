@@ -1,0 +1,16 @@
+city_key,city_name,voivodeship,latitude,longitude,sale_listings,rent_listings
+bialystok,Białystok,podlaskie,53.134863885,23.148313700000003,1014,222
+bydgoszcz,Bydgoszcz,kujawsko-pomorskie,53.12405,18.00798655,3553,726
+czestochowa,Częstochowa,śląskie,50.81385415,19.118044879958298,1203,343
+gdansk,Gdańsk,pomorskie,54.3542,18.60421416682095,7975,1901
+gdynia,Gdynia,pomorskie,54.5141,18.50941,3464,759
+katowice,Katowice,śląskie,50.2566455,19.0136533,2362,1440
+krakow,Kraków,małopolskie,50.0657825,19.95128774,13838,7271
+lodz,Łódź,łódzkie,51.76461,19.4584,7013,2610
+lublin,Lublin,lubelskie,51.2434,22.54735924,2280,629
+poznan,Poznań,wielkopolskie,52.4056,16.9196,3542,2195
+radom,Radom,mazowieckie,51.40246175,21.1585837,835,115
+rzeszow,Rzeszów,podkarpackie,50.03551905,22.002907800000003,760,306
+szczecin,Szczecin,zachodniopomorskie,53.432222,14.545938,2443,711
+warszawa,Warszawa,mazowieckie,52.22908,21.00893,31414,14569
+wroclaw,Wrocław,dolnośląskie,51.1078852,17.0290755,9473,3642

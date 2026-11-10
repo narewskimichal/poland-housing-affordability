@@ -1,0 +1,193 @@
+// =============================================================================
+// Poland Housing Affordability - miary DAX
+//
+// Wszystkie miary są w tabeli _Measures. Nad każdą miarą podany jest folder
+// wyświetlania i format.
+//
+// Parametry what-if (Power BI: Modelowanie > Nowy parametr > Zakres liczbowy):
+//   Savings       oszczędności: 0 - 500 000 zł, krok 10 000, domyślnie 100 000
+//   Net Income    dochód netto: 3 000 - 40 000 zł miesięcznie, krok 500, domyślnie 10 000
+//   Down Payment  wkład własny: 10 - 50 %, krok 5, domyślnie 20
+//   Bank Margin   marża banku: 0,5 - 4,0 pkt proc., krok 0,1, domyślnie 2,0
+//   Loan Term     okres kredytu: 10 - 35 lat, krok 1, domyślnie 25
+// Każdy parametr tworzy miarę "<nazwa> Value", np. [Savings Value].
+// =============================================================================
+
+
+// ---------------------------------------------------------------- Ceny -------
+
+// Folder: Prices | Format: liczba całkowita, separator tysięcy
+Median Price per m2 = MEDIAN ( fact_sale_price[price_per_m2] )
+
+// Folder: Prices | Format: liczba całkowita, separator tysięcy
+Median Price = MEDIAN ( fact_sale_price[price] )
+
+// Folder: Prices | Format: liczba całkowita, separator tysięcy
+Median Rent = MEDIAN ( fact_rent_price[rent] )
+
+// Folder: Prices | Format: liczba dziesiętna, 1 miejsce
+Median Rent per m2 = MEDIAN ( fact_rent_price[rent_per_m2] )
+
+// Folder: Prices | Format: liczba całkowita, separator tysięcy
+// Wiersze tabeli faktów = ogłoszenia aktywne w wybranych miesiącach
+Sale Offers = COUNTROWS ( fact_sale_price )
+
+// Folder: Prices | Format: liczba całkowita, separator tysięcy
+Rent Offers = COUNTROWS ( fact_rent_price )
+
+// Folder: Prices | Format: liczba całkowita
+// 100 = typowa cena w mieście; miara pomija filtry na cechach mieszkania,
+// więc np. przy "elevator = Yes" pokazuje, o ile cena jest wyższa lub niższa od poziomu miasta
+Price Index vs City =
+DIVIDE (
+    [Median Price per m2],
+    CALCULATE ( [Median Price per m2], REMOVEFILTERS ( dim_listing ) )
+) * 100
+
+
+// ------------------------------------------------------- Zmiany cen w czasie --
+
+// Folder: Price trend | Format: liczba całkowita, separator tysięcy
+Median Price per m2 (Prev Month) =
+VAR CurrentMonth = MAX ( dim_month[month] )
+RETURN
+    CALCULATE (
+        [Median Price per m2],
+        REMOVEFILTERS ( dim_month ),
+        dim_month[month] = EDATE ( CurrentMonth, -1 )
+    )
+
+// Folder: Price trend | Format: procent, 1 miejsce
+Price Change MoM % =
+VAR PrevMonth = [Median Price per m2 (Prev Month)]
+RETURN DIVIDE ( [Median Price per m2] - PrevMonth, PrevMonth )
+
+// Folder: Price trend | Format: procent, 1 miejsce
+// Zmiana względem pierwszego miesiąca danych (sierpień 2023)
+Price Change Since Start % =
+VAR FirstMonth = CALCULATE ( MIN ( fact_sale_price[month] ), REMOVEFILTERS ( dim_month ) )
+VAR StartValue =
+    CALCULATE (
+        [Median Price per m2],
+        REMOVEFILTERS ( dim_month ),
+        dim_month[month] = FirstMonth
+    )
+RETURN DIVIDE ( [Median Price per m2] - StartValue, StartValue )
+
+
+// ---------------------------------------------------- Dostępność mieszkań ----
+
+// Folder: Affordability | Format: liczba całkowita, separator tysięcy
+// Przeciętne miesięczne wynagrodzenie brutto w mieście wg GUS (wartość z roku danego miesiąca)
+Avg Gross Wage = AVERAGE ( fact_city_wage[avg_gross_wage_pln] )
+
+// Folder: Affordability | Format: liczba dziesiętna, 2 miejsca
+m2 per Monthly Wage = DIVIDE ( [Avg Gross Wage], [Median Price per m2] )
+
+// Folder: Affordability | Format: liczba dziesiętna, 1 miejsce
+Years of Pay for 50 m2 = DIVIDE ( 50 * [Median Price per m2], 12 * [Avg Gross Wage] )
+
+// Folder: Affordability | Format: procent, 2 miejsca
+// Roczne oprocentowanie kredytu = stopa referencyjna NBP w danym miesiącu + marża banku
+Mortgage Rate =
+VAR ReferenceRate = AVERAGE ( dim_month[reference_rate_pct] )
+RETURN ( ReferenceRate + [Bank Margin Value] ) / 100
+
+// Folder: Affordability | Format: liczba całkowita, separator tysięcy
+// Maksymalny kredyt, jaki da bank: rata do 40% dochodu netto
+// (typowy limit DSTI w polskich bankach), raty równe
+Max Loan =
+VAR MaxPayment = [Net Income Value] * 40 / 100
+VAR r = [Mortgage Rate] / 12
+VAR n = [Loan Term Value] * 12
+RETURN MaxPayment * DIVIDE ( 1 - ( 1 + r ) ^ ( -n ), r )
+
+// Folder: Affordability | Format: liczba całkowita, separator tysięcy
+// Maksymalna cena mieszkania: ograniczona dochodem (kredyt + oszczędności)
+// oraz wymaganym wkładem własnym (oszczędności muszą pokryć Down Payment % ceny)
+Max Budget =
+VAR ByIncome = [Max Loan] + [Savings Value]
+VAR ByDownPayment = DIVIDE ( [Savings Value], [Down Payment Value] / 100 )
+RETURN MIN ( ByIncome, ByDownPayment )
+
+// Folder: Affordability | Format: liczba dziesiętna, 1 miejsce
+Affordable m2 = DIVIDE ( [Max Budget], [Median Price per m2] )
+
+// Folder: Affordability | Format: procent, 0 miejsc
+// Odsetek ofert w bieżącym wyborze, które mieszczą się w budżecie
+Offers Within Budget % =
+VAR Budget = [Max Budget]
+RETURN
+    DIVIDE (
+        COUNTROWS ( FILTER ( fact_sale_price, fact_sale_price[price] <= Budget ) ),
+        COUNTROWS ( fact_sale_price )
+    )
+
+
+// ------------------------------------------------- Kupno czy najem -----------
+
+// Folder: Buy vs rent | Format: liczba całkowita, separator tysięcy
+// Miesięczna rata za typowe mieszkanie w bieżącym wyborze
+Monthly Payment =
+VAR Loan = [Median Price] * ( 1 - [Down Payment Value] / 100 )
+VAR r = [Mortgage Rate] / 12
+VAR n = [Loan Term Value] * 12
+RETURN IF ( NOT ISBLANK ( Loan ), DIVIDE ( Loan * r, 1 - ( 1 + r ) ^ ( -n ) ) )
+
+// Folder: Buy vs rent | Format: procent, 0 miejsc
+// O ile rata kredytu jest wyższa od czynszu za podobne mieszkanie
+Payment vs Rent % = DIVIDE ( [Monthly Payment] - [Median Rent], [Median Rent] )
+
+// Folder: Buy vs rent | Format: liczba dziesiętna, 1 miejsce
+// Wskaźnik cena/czynsz: ile lat czynszu odpowiada cenie mieszkania
+Years of Rent to Buy = DIVIDE ( [Median Price], 12 * [Median Rent] )
+
+
+// ------------------------------------------------- Dynamika rynku ------------
+
+// Folder: Market dynamics | Format: liczba całkowita, separator tysięcy
+Sale Listings (Unique) = DISTINCTCOUNT ( fact_sale_price[listing_key] )
+
+// Folder: Market dynamics | Format: liczba całkowita, separator tysięcy
+// Ogłoszenia, które pojawiły się po raz pierwszy w danym miesiącu
+New Listings =
+VAR CurrentMonth = MAX ( dim_month[month] )
+RETURN
+    CALCULATE (
+        [Sale Listings (Unique)],
+        dim_listing[first_seen] = CurrentMonth,
+        dim_listing[listed_at_start] = FALSE ()
+    )
+
+// Folder: Market dynamics | Format: procent, 1 miejsce
+// Tylko ogłoszenia o znanym początku i spójnej historii
+Price Cut Share % =
+CALCULATE (
+    DIVIDE (
+        CALCULATE ( [Sale Listings (Unique)], dim_listing[price_change_direction] = "Obniżka" ),
+        [Sale Listings (Unique)]
+    ),
+    dim_listing[listed_at_start] = FALSE (),
+    dim_listing[inconsistent_history] = FALSE ()
+)
+
+// Folder: Market dynamics | Format: procent, 1 miejsce
+Avg Price Cut % =
+CALCULATE (
+    AVERAGE ( dim_listing[price_change_pct] ),
+    fact_sale_price,
+    dim_listing[price_change_direction] = "Obniżka",
+    dim_listing[listed_at_start] = FALSE (),
+    dim_listing[inconsistent_history] = FALSE ()
+) / 100
+
+// Folder: Market dynamics | Format: liczba dziesiętna, 1 miejsce
+// Ogłoszenia, które pojawiły się i zniknęły w okresie objętym danymi
+Avg Months on Market =
+CALCULATE (
+    AVERAGE ( dim_listing[months_listed] ),
+    fact_sale_price,
+    dim_listing[listed_at_start] = FALSE (),
+    dim_listing[still_listed_at_end] = FALSE (),
+    dim_listing[inconsistent_history] = FALSE ()
+)
